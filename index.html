@@ -544,7 +544,7 @@
     if (dateEnd.value) dateEnd.dispatchEvent(new Event('change'));
   });
 
-  form.addEventListener('submit', function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     form.querySelectorAll('input[required], select[required]').forEach(el => {
@@ -557,31 +557,29 @@
       return;
     }
 
+    const btn = form.querySelector('.btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Отправка…';
+
     const data = collectFormData();
 
-    const labels = {
-      kh_name: 'Наименование КХ', bin: 'БИН / ИИН', contact: 'Контактное лицо',
-      phone: 'Телефон', address: 'Адрес', road_type: 'Тип дороги',
-      volume: 'Объём (тонн)', harvest_year: 'Год урожая',
-      oil_content: 'Масличность (%)', moisture: 'Влажность (%)', weed: 'Засорённость (%)',
-      price: 'Цена (₸/т)', payment: 'Условия оплаты', delivery_basis: 'Базис поставки',
-      vat: 'НДС', distance: 'Расстояние (км)', date_start: 'Дата начала',
-      date_end: 'Дата завершения', transport: 'Транспорт', notes: 'Примечания'
-    };
+    try {
+      await fetch('https://script.google.com/macros/s/AKfycbxhN12KLFfXRgmsA5mNWrrubxlBOHGFK4i3nu_44MILYg-KnvClTd5siqzDiIYZ1gMb/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-    const body = Object.entries(data)
-      .map(([k, v]) => `${labels[k] || k}: ${v}`)
-      .join('\n');
+      overlay.classList.add('active');
+      form.reset();
+      form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
+    } catch (err) {
+      alert('Ошибка сети. Проверьте подключение и попробуйте снова.');
+    }
 
-    const to = 'a.aibatulla94@gmail.com,Isin.ersin@gmail.com';
-    const subject = encodeURIComponent(`Заявка на подсолнечник — ${data.kh_name || ''}`);
-    const bodyEncoded = encodeURIComponent(body);
-
-    window.location.href = `mailto:${to}?subject=${subject}&body=${bodyEncoded}`;
-
-    overlay.classList.add('active');
-    form.reset();
-    form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
+    btn.disabled = false;
+    btn.textContent = 'Отправить заявку';
   });
 
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
