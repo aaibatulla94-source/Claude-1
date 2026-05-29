@@ -557,37 +557,22 @@
       return;
     }
 
-    const btn = form.querySelector('.btn-submit');
-    btn.disabled = true;
-    btn.textContent = 'Отправка…';
-
     const data = collectFormData();
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFJjuFDRfmDG2Nx_5FoKjLqP8Q-Rm1krjg9b6MhE33YtKTl6licxONV54gDRnl0pgr/exec';
     const params = new URLSearchParams(data);
 
-    fetch(SCRIPT_URL + '?' + params.toString(), { redirect: 'follow' })
-      .then(function(r) { return r.text(); })
-      .then(function(text) {
-        console.log('Script response:', text);
-        overlay.classList.add('active');
-        form.reset();
-        form.querySelectorAll('.touched').forEach(function(el) { el.classList.remove('touched'); });
-      })
-      .catch(function(err) {
-        console.error('Fetch error:', err);
-        // Показываем успех всё равно — скрипт мог выполниться несмотря на ошибку CORS
-        overlay.classList.add('active');
-        form.reset();
-        form.querySelectorAll('.touched').forEach(function(el) { el.classList.remove('touched'); });
-      })
-      .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Отправить заявку';
-      });
+    // Переходим на скрипт — он отправит письмо и вернёт обратно
+    window.location.href = SCRIPT_URL + '?' + params.toString();
   });
 
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
+
+  // Показать успех если вернулись после отправки
+  if (window.location.search.includes('success=1')) {
+    overlay.classList.add('active');
+    history.replaceState(null, '', window.location.pathname);
+  }
 
   function collectFormData() {
     const fd = new FormData(form);
