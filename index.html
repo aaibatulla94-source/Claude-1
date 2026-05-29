@@ -563,43 +563,20 @@
 
     const data = collectFormData();
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFJjuFDRfmDG2Nx_5FoKjLqP8Q-Rm1krjg9b6MhE33YtKTl6licxONV54gDRnl0pgr/exec';
+    const params = new URLSearchParams(data);
 
-    // Скрытый iframe для получения ответа
-    let iframe = document.getElementById('submit_iframe');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.name = 'submit_iframe';
-      iframe.id = 'submit_iframe';
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-    }
+    // Открываем в новой вкладке — единственный надёжный способ вызвать Apps Script
+    const win = window.open(SCRIPT_URL + '?' + params.toString(), '_blank');
 
-    // Скрытая форма для отправки без CORS
-    const hiddenForm = document.createElement('form');
-    hiddenForm.method = 'GET';
-    hiddenForm.action = SCRIPT_URL;
-    hiddenForm.target = 'submit_iframe';
-
-    Object.entries(data).forEach(([k, v]) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = k;
-      input.value = v;
-      hiddenForm.appendChild(input);
-    });
-
-    document.body.appendChild(hiddenForm);
-    hiddenForm.submit();
-    document.body.removeChild(hiddenForm);
-
-    // Показываем успех через 3 секунды
+    // Закрываем вкладку через 4 секунды
     setTimeout(function() {
+      if (win) win.close();
       overlay.classList.add('active');
       form.reset();
       form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
       btn.disabled = false;
       btn.textContent = 'Отправить заявку';
-    }, 3000);
+    }, 4000);
   });
 
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
