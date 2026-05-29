@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Заявка на приобретение семян подсолнечника</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f2f4f7;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    .page-header {
+      max-width: 960px;
+      margin: 0 auto 32px;
+    }
+
+    .page-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0d2137;
+      border-left: 4px solid #1565c0;
+      padding-left: 14px;
+      line-height: 1.3;
+    }
+
+    .page-header p {
+      margin-top: 8px;
+      padding-left: 18px;
+      font-size: 0.875rem;
+      color: #5a6478;
+    }
+
+    form {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .block {
+      background: #fff;
+      border: 1px solid #dce2ec;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .block-header {
+      background: #0d2137;
+      color: #fff;
+      padding: 12px 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .block-body {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px 24px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+    .field.half { grid-column: span 2; }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #374151;
+      letter-spacing: 0.01em;
+    }
+
+    .req { color: #c0392b; margin-left: 2px; }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #c8d0dc;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      color: #1a1a2e;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.12);
+    }
+
+    input.has-badge { padding-right: 60px; }
+
+    .badge {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      background: #eef2f9;
+      border: 1px solid #c8d0dc;
+      border-left: none;
+      border-radius: 0 5px 5px 0;
+      font-size: 0.78rem;
+      color: #5a6478;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #5a6478;
+      pointer-events: none;
+      font-size: 0.85rem;
+    }
+    .select-wrap select { padding-right: 30px; cursor: pointer; }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 2px;
+    }
+
+    .radio-group label {
+      font-weight: 400;
+      font-size: 0.875rem;
+      color: #374151;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .radio-group input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #1565c0;
+      cursor: pointer;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #6b7a99;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .form-footer {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn-submit {
+      background: #1565c0;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 13px 36px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-submit:hover { background: #0d47a1; }
+    .btn-submit:active { transform: scale(0.98); }
+
+    .form-note {
+      font-size: 0.8rem;
+      color: #6b7a99;
+    }
+
+    /* Success overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,33,55,0.55);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .overlay.active { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      padding: 40px 48px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    }
+
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      background: #e8f5e9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.8rem;
+    }
+
+    .modal h2 { font-size: 1.2rem; color: #0d2137; margin-bottom: 10px; }
+    .modal p { font-size: 0.875rem; color: #5a6478; line-height: 1.6; }
+
+    .btn-close {
+      margin-top: 24px;
+      background: #1565c0;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-close:hover { background: #0d47a1; }
+
+    /* validation */
+    input:invalid.touched,
+    select:invalid.touched {
+      border-color: #c0392b;
+    }
+
+    .error-msg {
+      font-size: 0.73rem;
+      color: #c0392b;
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+      .block-body { grid-template-columns: 1fr 1fr; }
+      .field.half { grid-column: span 2; }
+    }
+
+    @media (max-width: 480px) {
+      .block-body { grid-template-columns: 1fr; }
+      .field.half, .field.full { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Заявка на приобретение семян подсолнечника</h1>
+  <p>Заполните форму — экономист маслозавода получит структурированные данные для расчёта рентабельности.</p>
+</div>
+
+<form id="appForm" novalidate>
+
+  <!-- Блок 1 -->
+  <div class="block">
+    <div class="block-header">Блок 1 — Сведения о хозяйстве</div>
+    <div class="block-body">
+
+      <div class="field half">
+        <label for="kh_name">Наименование КХ <span class="req">*</span></label>
+        <input type="text" id="kh_name" name="kh_name" required placeholder="ТОО «Агро-Степь»" />
+      </div>
+
+      <div class="field">
+        <label for="bin">БИН / ИИН</label>
+        <input type="text" id="bin" name="bin" placeholder="123456789012" maxlength="12" />
+      </div>
+
+      <div class="field">
+        <label for="contact">Контактное лицо <span class="req">*</span></label>
+        <input type="text" id="contact" name="contact" required placeholder="Иванов Иван Иванович" />
+      </div>
+
+      <div class="field">
+        <label for="phone">Телефон <span class="req">*</span></label>
+        <input type="tel" id="phone" name="phone" required placeholder="+7 777 000 00 00" />
+      </div>
+
+      <div class="field half">
+        <label for="address">Адрес / местонахождение <span class="req">*</span></label>
+        <input type="text" id="address" name="address" required placeholder="Акмолинская обл., р-н Аршалы, с. Степное" />
+      </div>
+
+      <div class="field">
+        <label for="road_type">Тип дороги до КХ</label>
+        <div class="select-wrap">
+          <select id="road_type" name="road_type">
+            <option value="">— Не указано —</option>
+            <option value="Асфальт">Асфальт</option>
+            <option value="Грунтовая">Грунтовая</option>
+            <option value="Смешанная">Смешанная</option>
+          </select>
+        </div>
+        <span class="hint">Учитывается при оценке логистических рисков в сезон.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Блок 2 -->
+  <div class="block">
+    <div class="block-header">Блок 2 — Объём и качество сырья</div>
+    <div class="block-body">
+
+      <div class="field">
+        <label for="volume">Объём предложения <span class="req">*</span></label>
+        <div class="input-wrap">
+          <input type="number" id="volume" name="volume" class="has-badge" required min="0.1" step="0.1" placeholder="0.0" />
+          <span class="badge">тонн</span>
+        </div>
+      </div>
+
+
+      <div class="field">
+        <label for="harvest_year">Год урожая <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="harvest_year" name="harvest_year" required>
+            <option value="">— Выберите —</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="oil_content">Масличность</label>
+        <div class="input-wrap">
+          <input type="number" id="oil_content" name="oil_content" class="has-badge" min="0" max="100" step="0.1" placeholder="0.0" />
+          <span class="badge">%</span>
+        </div>
+        <span class="hint">Влияет на выход масла и себестоимость переработки.</span>
+      </div>
+
+      <div class="field">
+        <label for="moisture">Влажность</label>
+        <div class="input-wrap">
+          <input type="number" id="moisture" name="moisture" class="has-badge" min="0" max="100" step="0.1" placeholder="0.0" />
+          <span class="badge">%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="weed">Засорённость <span class="req">*</span></label>
+        <div class="input-wrap">
+          <input type="number" id="weed" name="weed" class="has-badge" required min="0" max="100" step="0.1" placeholder="0.0" />
+          <span class="badge">%</span>
+        </div>
+        <span class="hint">Влияет на себестоимость переработки.</span>
+      </div>
+
+      <div class="field full">
+        <label>Место хранения</label>
+        <div class="radio-group">
+          <label><input type="radio" name="storage" value="Собственный склад" /> Собственный склад</label>
+          <label><input type="radio" name="storage" value="Арендованный" /> Арендованный</label>
+          <label><input type="radio" name="storage" value="Полевой ток" /> Полевой ток</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Блок 3 -->
+  <div class="block">
+    <div class="block-header">Блок 3 — Ценовые условия</div>
+    <div class="block-body">
+
+      <div class="field">
+        <label for="price">Предлагаемая цена <span class="req">*</span></label>
+        <div class="input-wrap">
+          <input type="number" id="price" name="price" class="has-badge" required min="0" step="100" placeholder="0" />
+          <span class="badge">₸/т</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="payment">Условия оплаты <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="payment" name="payment" required>
+            <option value="">— Выберите —</option>
+            <option value="Предоплата 100%">Предоплата 100%</option>
+            <option value="Предоплата 50%">Предоплата 50%</option>
+            <option value="По факту">По факту</option>
+            <option value="Отсрочка">Отсрочка</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="delivery_basis">Базис поставки</label>
+        <div class="select-wrap">
+          <select id="delivery_basis" name="delivery_basis">
+            <option value="">— Не указано —</option>
+            <option value="EXW">EXW (самовывоз)</option>
+            <option value="DAP">DAP (с доставкой)</option>
+            <option value="Иное">Иное</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>НДС <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="vat" value="С НДС" required /> С учётом НДС</label>
+          <label><input type="radio" name="vat" value="Без НДС" /> Без учёта НДС</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Блок 4 -->
+  <div class="block">
+    <div class="block-header">Блок 4 — Логистика и сроки</div>
+    <div class="block-body">
+
+      <div class="field">
+        <label for="distance">Расстояние до маслозавода <span class="req">*</span></label>
+        <div class="input-wrap">
+          <input type="number" id="distance" name="distance" class="has-badge" required min="1" step="1" placeholder="0" />
+          <span class="badge">км</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="date_start">Дата начала поставки <span class="req">*</span></label>
+        <input type="date" id="date_start" name="date_start" required />
+      </div>
+
+      <div class="field">
+        <label for="date_end">Дата завершения поставки</label>
+        <input type="date" id="date_end" name="date_end" />
+      </div>
+
+      <div class="field">
+        <label for="transport">Транспорт</label>
+        <div class="select-wrap">
+          <select id="transport" name="transport">
+            <option value="">— Не указано —</option>
+            <option value="КХ">КХ (собственный)</option>
+            <option value="Завод">Завод</option>
+            <option value="ТЭК">ТЭК</option>
+            <option value="Не определено">Не определено</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Блок 5 -->
+  <div class="block">
+    <div class="block-header">Блок 5 — Примечания</div>
+    <div class="block-body">
+      <div class="field full">
+        <label for="notes">Дополнительная информация</label>
+        <textarea id="notes" name="notes" placeholder="Укажите любые сведения, которые могут быть важны для экономиста…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="form-footer">
+    <button type="submit" class="btn-submit">Отправить заявку</button>
+    <span class="form-note"><span class="req">*</span> — обязательные поля</span>
+  </div>
+
+</form>
+
+<!-- Success modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-icon">✓</div>
+    <h2>Заявка отправлена</h2>
+    <p>Данные переданы экономисту маслозавода.<br />Ожидайте обратной связи по указанному телефону.</p>
+    <button class="btn-close" id="closeModal">Закрыть</button>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('appForm');
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeModal');
+
+  // Mark fields as touched on blur for validation styling
+  form.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('blur', () => el.classList.add('touched'));
+  });
+
+  // Date end must be >= date start
+  const dateStart = document.getElementById('date_start');
+  const dateEnd = document.getElementById('date_end');
+
+  dateEnd.addEventListener('change', () => {
+    if (dateStart.value && dateEnd.value && dateEnd.value < dateStart.value) {
+      dateEnd.setCustomValidity('Дата завершения не может быть раньше даты начала');
+    } else {
+      dateEnd.setCustomValidity('');
+    }
+  });
+
+  dateStart.addEventListener('change', () => {
+    if (dateEnd.value) dateEnd.dispatchEvent(new Event('change'));
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Touch all required fields
+    form.querySelectorAll('input[required], select[required]').forEach(el => {
+      el.classList.add('touched');
+    });
+
+    if (!form.checkValidity()) {
+      const first = form.querySelector(':invalid');
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Collect data
+    const data = collectFormData();
+    console.log('Заявка:', data);
+
+    // In a real deployment, POST data to backend here.
+    // fetch('/api/submit', { method: 'POST', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
+
+    overlay.classList.add('active');
+    form.reset();
+    form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
+  });
+
+  closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
+
+  function collectFormData() {
+    const fd = new FormData(form);
+    const obj = {};
+    fd.forEach((v, k) => { if (v !== '') obj[k] = v; });
+    // radio buttons (FormData already handles them)
+    return obj;
+  }
+</script>
+</body>
+</html>
