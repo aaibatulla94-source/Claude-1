@@ -565,10 +565,9 @@
 
     try {
       const params = new URLSearchParams(data);
-      await fetch('https://script.google.com/macros/s/AKfycbxhN12KLFfXRgmsA5mNWrrubxlBOHGFK4i3nu_44MILYg-KnvClTd5siqzDiIYZ1gMb/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: params
+      await fetch('https://script.google.com/macros/s/AKfycbyFJjuFDRfmDG2Nx_5FoKjLqP8Q-Rm1krjg9b6MhE33YtKTl6licxONV54gDRnl0pgr/exec?' + params.toString(), {
+        method: 'GET',
+        mode: 'no-cors'
       });
 
       overlay.classList.add('active');
