@@ -564,11 +564,11 @@
     const data = collectFormData();
 
     try {
+      const params = new URLSearchParams(data);
       await fetch('https://script.google.com/macros/s/AKfycbxhN12KLFfXRgmsA5mNWrrubxlBOHGFK4i3nu_44MILYg-KnvClTd5siqzDiIYZ1gMb/exec', {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: params
       });
 
       overlay.classList.add('active');
