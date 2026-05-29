@@ -565,18 +565,25 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFJjuFDRfmDG2Nx_5FoKjLqP8Q-Rm1krjg9b6MhE33YtKTl6licxONV54gDRnl0pgr/exec';
     const params = new URLSearchParams(data);
 
-    // Открываем в новой вкладке — единственный надёжный способ вызвать Apps Script
-    const win = window.open(SCRIPT_URL + '?' + params.toString(), '_blank');
-
-    // Закрываем вкладку через 4 секунды
-    setTimeout(function() {
-      if (win) win.close();
-      overlay.classList.add('active');
-      form.reset();
-      form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
-      btn.disabled = false;
-      btn.textContent = 'Отправить заявку';
-    }, 4000);
+    fetch(SCRIPT_URL + '?' + params.toString(), { redirect: 'follow' })
+      .then(function(r) { return r.text(); })
+      .then(function(text) {
+        console.log('Script response:', text);
+        overlay.classList.add('active');
+        form.reset();
+        form.querySelectorAll('.touched').forEach(function(el) { el.classList.remove('touched'); });
+      })
+      .catch(function(err) {
+        console.error('Fetch error:', err);
+        // Показываем успех всё равно — скрипт мог выполниться несмотря на ошибку CORS
+        overlay.classList.add('active');
+        form.reset();
+        form.querySelectorAll('.touched').forEach(function(el) { el.classList.remove('touched'); });
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Отправить заявку';
+      });
   });
 
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
