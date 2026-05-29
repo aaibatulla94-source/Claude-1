@@ -544,7 +544,7 @@
     if (dateEnd.value) dateEnd.dispatchEvent(new Event('change'));
   });
 
-  form.addEventListener('submit', async function (e) {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
 
     form.querySelectorAll('input[required], select[required]').forEach(el => {
@@ -556,10 +556,6 @@
       if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-
-    const btn = form.querySelector('.btn-submit');
-    btn.disabled = true;
-    btn.textContent = 'Отправка…';
 
     const data = collectFormData();
 
@@ -573,41 +569,19 @@
       date_end: 'Дата завершения', transport: 'Транспорт', notes: 'Примечания'
     };
 
-    const rows = Object.entries(data)
-      .filter(([k]) => k !== 'access_key')
-      .map(([k, v]) => `<tr><td style="padding:6px 12px;color:#555;white-space:nowrap">${labels[k] || k}</td><td style="padding:6px 12px;font-weight:600">${v}</td></tr>`)
-      .join('');
+    const body = Object.entries(data)
+      .map(([k, v]) => `${labels[k] || k}: ${v}`)
+      .join('\n');
 
-    const html = `<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;width:100%">${rows}</table>`;
+    const to = 'a.aibatulla@qazaqastyq.kz,isin.ersin@qazaqastyq.kz';
+    const subject = encodeURIComponent(`Заявка на подсолнечник — ${data.kh_name || ''}`);
+    const bodyEncoded = encodeURIComponent(body);
 
-    try {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_key: '46bd0236-a643-4d64-b592-55680f57e676',
-          subject: `Заявка на подсолнечник — ${data.kh_name || ''}`,
-          cc: 'isin.ersin@qazaqastyq.kz',
-          from_name: data.contact || 'Представитель КХ',
-          message: html,
-          ...data
-        })
-      });
+    window.location.href = `mailto:${to}?subject=${subject}&body=${bodyEncoded}`;
 
-      const json = await res.json();
-      if (json.success) {
-        overlay.classList.add('active');
-        form.reset();
-        form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
-      } else {
-        alert('Ошибка отправки: ' + (json.message || 'Попробуйте ещё раз'));
-      }
-    } catch (err) {
-      alert('Ошибка сети. Проверьте подключение и попробуйте снова.');
-    }
-
-    btn.disabled = false;
-    btn.textContent = 'Отправить заявку';
+    overlay.classList.add('active');
+    form.reset();
+    form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
   });
 
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
