@@ -562,26 +562,44 @@
     btn.textContent = 'Отправка…';
 
     const data = collectFormData();
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFJjuFDRfmDG2Nx_5FoKjLqP8Q-Rm1krjg9b6MhE33YtKTl6licxONV54gDRnl0pgr/exec';
 
-    try {
-      const params = new URLSearchParams(data);
-      const url = 'https://script.google.com/macros/s/AKfycbyFJjuFDRfmDG2Nx_5FoKjLqP8Q-Rm1krjg9b6MhE33YtKTl6licxONV54gDRnl0pgr/exec?' + params.toString();
-      await new Promise((resolve) => {
-        const img = new Image();
-        img.onload = img.onerror = resolve;
-        img.src = url;
-        setTimeout(resolve, 5000);
-      });
+    // Скрытый iframe для получения ответа
+    let iframe = document.getElementById('submit_iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.name = 'submit_iframe';
+      iframe.id = 'submit_iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
 
+    // Скрытая форма для отправки без CORS
+    const hiddenForm = document.createElement('form');
+    hiddenForm.method = 'GET';
+    hiddenForm.action = SCRIPT_URL;
+    hiddenForm.target = 'submit_iframe';
+
+    Object.entries(data).forEach(([k, v]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = k;
+      input.value = v;
+      hiddenForm.appendChild(input);
+    });
+
+    document.body.appendChild(hiddenForm);
+    hiddenForm.submit();
+    document.body.removeChild(hiddenForm);
+
+    // Показываем успех через 3 секунды
+    setTimeout(function() {
       overlay.classList.add('active');
       form.reset();
       form.querySelectorAll('.touched').forEach(el => el.classList.remove('touched'));
-    } catch (err) {
-      alert('Ошибка сети. Проверьте подключение и попробуйте снова.');
-    }
-
-    btn.disabled = false;
-    btn.textContent = 'Отправить заявку';
+      btn.disabled = false;
+      btn.textContent = 'Отправить заявку';
+    }, 3000);
   });
 
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
